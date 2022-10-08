@@ -13,13 +13,11 @@ public class Joystick : MonoBehaviour
     [Header("Joystick")]
     [SerializeField] private float _radius = 150;
     private int _index = -1;
-    private Vector2 _direction;
-    private float _distance;
+    public Vector2 Direction { get; private set; }
+    public float Distance { get; private set; }
 
 
     public TMP_Text canvasText;
-
-    private int _joystickIndex = -1;
 
     void Start()
     {
@@ -31,7 +29,7 @@ public class Joystick : MonoBehaviour
     void Update()
     {
         GetFinger();
-        CanvasInfoStuff();
+        GetJoystickInfo(_joystickFG);
     }
 
     /// <summary>
@@ -66,7 +64,6 @@ public class Joystick : MonoBehaviour
             // Update foreground joystick position
             Touch touch = Input.GetTouch(_index);
             _joystickFG.position = touch.position;
-            GetJoystickInfo(_joystickFG);
 
             // Reset index when finger is removed
             if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) _index = -1;
@@ -75,13 +72,15 @@ public class Joystick : MonoBehaviour
 
     private void GetJoystickInfo(RectTransform joystick)
     {
-        _direction = (joystick.localPosition - _joystickBG.position).normalized;
-        _distance = Vector2.Distance(Vector2.zero, joystick.localPosition);
+        Direction = (_joystickBG.position - joystick.position).normalized;
+        Distance = Vector2.Distance(Vector2.zero, joystick.localPosition);
+
+        CanvasInfoStuff();
     }
 
     private void CanvasInfoStuff()
     {
-        canvasText.text = "Direction: " + _direction + "<br>" +
-            "Distance: " + _distance;
+        canvasText.text = "Direction: " + Direction + "<br>" +
+            "Distance: " + Distance;
     }
 }
