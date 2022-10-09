@@ -61,12 +61,19 @@ public class Joystick : MonoBehaviour
             }
         } else
         {
-            // Update foreground joystick position
-            Touch touch = Input.GetTouch(_index);
-            _joystickFG.position = touch.position;
+            try
+            {
+                // Update foreground joystick position
+                Touch touch = Input.GetTouch(_index);
+                _joystickFG.position = touch.position;
 
-            // Reset index when finger is removed
-            if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) _index = -1;
+                // Reset index when finger is removed
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) _index = -1;
+            } catch
+            {
+                _index = -1;
+            }
+
         }
     }
 

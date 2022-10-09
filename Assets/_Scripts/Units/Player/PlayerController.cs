@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
+using static UnityEngine.GraphicsBuffer;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -12,16 +12,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _maxDashRange = 9f;
     [SerializeField] private float _dashRange;
     [SerializeField] private bool _canDash = true;
-    [SerializeField] private float _dashICD = 0.5f;
+    [SerializeField] private float _dashICD = 0.75f;
 
     [SerializeField] private Vector2 _finalPosition = Vector2.zero;
+
+    [SerializeField] [Range(0.0f, 1.0f)] private float _slowmotionValue;
 
     [Header("Components")]
     [SerializeField] private LineRenderer _lineRenderer;
     [SerializeField] private Rigidbody2D _rb;
+    [SerializeField] private BoxCollider2D _boxCollider;
 
+    [Header("Joystick")]
     [SerializeField] public Joystick JoystickScript;
-    [SerializeField] private Vector2 _DirectionJoystick = Vector2.zero;
+    [SerializeField] private Vector2 _directionJoystick = Vector2.zero;
+
+    [SerializeField] private bool _isAiming = false;
 
     [Header("References")]
     [SerializeField] private bool _inDash = false;
@@ -31,6 +37,7 @@ public class PlayerController : MonoBehaviour
         // Setting components
         _lineRenderer = GetComponent<LineRenderer>();
         _rb = GetComponent<Rigidbody2D>();
+        _boxCollider = GetComponent<BoxCollider2D>();
     }
 
     void Update()
@@ -43,27 +50,51 @@ public class PlayerController : MonoBehaviour
         AimDash();
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy" && _inDash)
+        {
+            print("JIJIJIA");
+            _canDash = true;
+        }
+    }
+
+    #region Aim Dash
     private void AimDash()
     {
         if (JoystickScript.Distance != 0 && _canDash == true)
         {
+            _isAiming = true;
+
             // Calculate dash direction
             CalcDashRange();
             _finalPosition = JoystickScript.Direction * _dashRange + (Vector2)transform.position;
-            _DirectionJoystick = JoystickScript.Direction;
-
+            _directionJoystick = JoystickScript.Direction;
 
             // Draw line renderer
             _lineRenderer.SetPosition(0, transform.position);
             _lineRenderer.SetPosition(1, _finalPosition);
         } else
         {
+            _isAiming = false;
+            Time.timeScale = 1; // Reseting time scale
+
             Dash();
             // Stop drawing line renderer
             _lineRenderer.SetPosition(0, transform.position);
             _lineRenderer.SetPosition(1, transform.position);
         }
+
+        AimDashSlowmotion();
     }
+
+    private void AimDashSlowmotion()
+    {
+        if (!_isAiming) return;
+
+        Time.timeScale = _slowmotionValue;
+    }
+    #endregion
 
     /// <summary>
     /// Calculate the range of the dash depending how much the player is streaching the joystick
@@ -79,6 +110,7 @@ public class PlayerController : MonoBehaviour
         _dashRange = Mathf.Clamp(jsD_to_dashD, _minDashRange, _maxDashRange);
     }
 
+    #region Dash
     /// <summary>
     /// When stop aiming SHOOT!
     /// </summary>
@@ -91,7 +123,7 @@ public class PlayerController : MonoBehaviour
         if (JoystickScript.Distance == 0 && _dashRange != 0 && _canDash == true && _inDash == false)
         {
             // Do Dash
-            StartCoroutine(DoDash(transform.position, _finalPosition, .1f, _DirectionJoystick));
+            StartCoroutine(DoDash(transform.position, _finalPosition, .1f, _directionJoystick));
 
             // Reseting vars
             _canDash = false;
@@ -113,6 +145,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DoDash(Vector2 init, Vector2 final, float time, Vector2 direction)
     {
+        _boxCollider.size = new Vector2(2, 2);
         _rb.velocity = Vector2.zero;
         Vector2 curr = this.transform.position;
         float t = 0f;
@@ -127,5 +160,7 @@ public class PlayerController : MonoBehaviour
 
         float vel = Vector2.Distance(init, final) / time;
         _rb.AddForce((vel/10) * direction, ForceMode2D.Impulse);
+        _boxCollider.size = new Vector2(1, 1);
     }
+    #endregion
 }
