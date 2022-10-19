@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using static UnityEngine.GraphicsBuffer;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,16 +13,27 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _maxDashRange = 9f;
     [SerializeField] private float _dashRange;
     [SerializeField] private bool _canDash = true;
+    [SerializeField] private float _dashDuration = 0.1f;
     [SerializeField] private float _dashICD = 0.75f;
+
+    public int MaxDashes = 3;
+    [SerializeField] private int _dashes = 3;
 
     [SerializeField] private Vector2 _finalPosition = Vector2.zero;
 
     [SerializeField] [Range(0.0f, 1.0f)] private float _slowmotionValue;
 
+    private Vector3 _lastFramePosition;
+
+    private Vector3 _defaultScale = new Vector3 { x = 0.5f, y = 0.5f, z = 1.0f };
+    private Vector3 _stretchScale = new Vector3 { x = 0.5f, y = 0.3f, z = 1.0f };
+    private Vector3 _dashScale = Vector3.zero;
+
     [Header("Components")]
     [SerializeField] private LineRenderer _lineRenderer;
     [SerializeField] private Rigidbody2D _rb;
     [SerializeField] private BoxCollider2D _boxCollider;
+    [SerializeField] private LayerMask _floorLayer;
 
     [Header("Joystick")]
     [SerializeField] public Joystick JoystickScript;
@@ -38,16 +50,21 @@ public class PlayerController : MonoBehaviour
         _lineRenderer = GetComponent<LineRenderer>();
         _rb = GetComponent<Rigidbody2D>();
         _boxCollider = GetComponent<BoxCollider2D>();
+
+        _dashes = MaxDashes;
     }
 
     void Update()
     {
+        DashesController();
         
     }
 
     private void FixedUpdate()
     {
         AimDash();
+        RotateCharacter();
+        DeformCharacter();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -62,9 +79,10 @@ public class PlayerController : MonoBehaviour
     #region Aim Dash
     private void AimDash()
     {
-        if (JoystickScript.Distance != 0 && _canDash == true)
+        if (JoystickScript.Distance != 0 && _canDash == true && _dashes >= 1)
         {
             _isAiming = true;
+            //StopCoroutine(ReturnToDefaultScale(0.0f));
 
             // Calculate dash direction
             CalcDashRange();
@@ -85,6 +103,7 @@ public class PlayerController : MonoBehaviour
             _lineRenderer.SetPosition(1, transform.position);
         }
 
+        // When aiming
         AimDashSlowmotion();
     }
 
@@ -92,6 +111,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isAiming) return;
 
+        // Reducing timescale when aiming
         Time.timeScale = _slowmotionValue;
     }
     #endregion
@@ -123,7 +143,8 @@ public class PlayerController : MonoBehaviour
         if (JoystickScript.Distance == 0 && _dashRange != 0 && _canDash == true && _inDash == false)
         {
             // Do Dash
-            StartCoroutine(DoDash(transform.position, _finalPosition, .1f, _directionJoystick));
+            StartCoroutine(DoDash(transform.position, _finalPosition, _dashDuration, _directionJoystick));
+            _dashes--;
 
             // Reseting vars
             _canDash = false;
@@ -149,6 +170,7 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = Vector2.zero;
         Vector2 curr = this.transform.position;
         float t = 0f;
+        _inDash = true;
 
         while (t < 1)
         {
@@ -161,6 +183,77 @@ public class PlayerController : MonoBehaviour
         float vel = Vector2.Distance(init, final) / time;
         _rb.AddForce((vel/10) * direction, ForceMode2D.Impulse);
         _boxCollider.size = new Vector2(1, 1);
+        _inDash = false;
+    }
+
+    private void DashesController()
+    {
+        if (Grounded() && _dashes != MaxDashes) _dashes = MaxDashes;
     }
     #endregion
+
+    private void RotateCharacter()
+    {
+        if (_isAiming)
+        {
+            // Rotating the player towards the direction is looking
+            Vector2 dir = _directionJoystick;
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        } else
+        {
+            // Is touching ground
+            if (Grounded())
+            {
+                transform.rotation = Quaternion.AngleAxis(0, Vector3.forward);
+            } else
+            {
+                var dir = (transform.position - _lastFramePosition).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            }
+
+            _lastFramePosition = transform.position;
+        }
+
+    }
+
+    private void DeformCharacter()
+    {
+        if (_isAiming)
+        {
+            float max = 40;
+            float min = 1;
+            transform.localScale = Vector3.Lerp(_defaultScale, _stretchScale, Helpers.FromRangeToPercentage(JoystickScript.Distance, min, max) / 100);
+        } else if (_inDash && transform.localScale != _defaultScale)
+        {
+            if (_dashScale == Vector3.zero) StartCoroutine(ReturnToDefaultScale(_dashDuration));
+        }
+    }
+
+    private IEnumerator ReturnToDefaultScale(float time)
+    {
+        yield return new WaitForSeconds(time * .5f);
+        float t = 0f;
+        _dashScale = transform.localScale;
+
+        while (t < 1)
+        {
+            t += Time.deltaTime / time;
+            transform.localScale = Vector3.Lerp(_dashScale, _defaultScale, t);
+            yield return null;
+        }
+
+        _dashScale = Vector3.zero;
+    }
+
+    private bool Grounded()
+    {
+        return Physics2D.OverlapCircle(transform.position, .5f, _floorLayer);
+    } 
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, .5f);
+    }
 }
