@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Components")]
+    public GameObject ExplosionPS;
     void Start()
     {
         
@@ -20,5 +22,16 @@ public class EnemyController : MonoBehaviour
         {
             print("OH NO MORI");
         }
+    }
+
+    private void OnDestroy()
+    {
+        GameObject gameObjectps = Instantiate(ExplosionPS, this.transform.position, Quaternion.identity);
+        Destroy(gameObjectps, 1.5f);
+    }
+
+    public void Kill()
+    {
+        Destroy(this.gameObject);
     }
 }

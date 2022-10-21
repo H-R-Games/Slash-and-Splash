@@ -16,6 +16,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _dashDuration = 0.1f;
     [SerializeField] private float _dashICD = 0.75f;
 
+    private bool _killedEnemy = false;
+
     public int MaxDashes = 3;
     [SerializeField] private int _dashes = 3;
 
@@ -51,13 +53,16 @@ public class PlayerController : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _boxCollider = GetComponent<BoxCollider2D>();
 
+        JoystickScript = Joystick.Instance;
+
         _dashes = MaxDashes;
     }
 
     void Update()
     {
         DashesController();
-        
+        _lineRenderer.SetPosition(0, transform.position);
+
     }
 
     private void FixedUpdate()
@@ -71,8 +76,11 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Enemy" && _inDash)
         {
-            print("JIJIJIA");
             _canDash = true;
+            _killedEnemy = true;
+            ResetDases();
+
+            collision.GetComponent<EnemyController>().Kill();
         }
     }
 
@@ -90,7 +98,7 @@ public class PlayerController : MonoBehaviour
             _directionJoystick = JoystickScript.Direction;
 
             // Draw line renderer
-            _lineRenderer.SetPosition(0, transform.position);
+            //_lineRenderer.SetPosition(0, transform.position);
             _lineRenderer.SetPosition(1, _finalPosition);
         } else
         {
@@ -143,7 +151,7 @@ public class PlayerController : MonoBehaviour
         if (JoystickScript.Distance == 0 && _dashRange != 0 && _canDash == true && _inDash == false)
         {
             // Do Dash
-            StartCoroutine(DoDash(transform.position, _finalPosition, _dashDuration, _directionJoystick));
+            StartCoroutine(DoDash(transform.position, _finalPosition, _dashDuration, _directionJoystick, _dashRange));
             _dashes--;
 
             // Reseting vars
@@ -164,7 +172,7 @@ public class PlayerController : MonoBehaviour
         _canDash = true;
     }
 
-    private IEnumerator DoDash(Vector2 init, Vector2 final, float time, Vector2 direction)
+    private IEnumerator DoDash(Vector2 init, Vector2 final, float time, Vector2 direction, float dashForce)
     {
         _boxCollider.size = new Vector2(2, 2);
         _rb.velocity = Vector2.zero;
@@ -180,15 +188,37 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
+        if (_killedEnemy)
+        {
+            curr = this.transform.position;
+            t = 0f;
+            final = direction * dashForce + (Vector2)transform.position;
+
+            while (t < 1)
+            {
+                t += Time.deltaTime / time;
+                //this.transform.position = Vector2.Lerp(curr, final, t);
+                
+                _rb.MovePosition(Vector2.Lerp(curr, final, t));
+                yield return null;
+            }
+
+            _killedEnemy = false;
+        }
+        _inDash = false;
         float vel = Vector2.Distance(init, final) / time;
         _rb.AddForce((vel/10) * direction, ForceMode2D.Impulse);
         _boxCollider.size = new Vector2(1, 1);
-        _inDash = false;
     }
 
     private void DashesController()
     {
-        if (Grounded() && _dashes != MaxDashes) _dashes = MaxDashes;
+        if (Grounded() && _dashes != MaxDashes) ResetDases();
+    }
+
+    public void ResetDases()
+    {
+        _dashes = MaxDashes;
     }
     #endregion
 
