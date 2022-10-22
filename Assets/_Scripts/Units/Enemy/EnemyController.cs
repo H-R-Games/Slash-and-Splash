@@ -20,18 +20,19 @@ public class EnemyController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            print("OH NO MORI");
+            //print("OH NO MORI");
         }
     }
 
     private void OnDestroy()
     {
-        GameObject gameObjectps = Instantiate(ExplosionPS, this.transform.position, Quaternion.identity);
-        Destroy(gameObjectps, 1.5f);
+     
     }
 
     public void Kill()
     {
+        GameObject gameObjectps = Instantiate(ExplosionPS, this.transform.position, Quaternion.identity);
+        Destroy(gameObjectps, 1.5f);
         Destroy(this.gameObject);
     }
 }
