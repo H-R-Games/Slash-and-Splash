@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour
 {
+    [Header("Set a prefab enemy")]
     public GameObject normalEnemy;
     private float distance;
     private float distanceTravelled;
     private float min;
     private float max;
-    private float spawnDistance = 30f;
-    public List<GameObject> entities;
-    private bool gravity;
+    private float spawnDistance = 10f;
+    private List<GameObject> entities;
 
     private void Awake()
     {
@@ -21,6 +21,18 @@ public class EnemySpawn : MonoBehaviour
         distanceTravelled = 0f;
         min = 0f;
         max = 0f;
+    }
+
+    private void Start()
+    {
+        for (int i = 0; i < 50; i++)
+        {
+            float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
+            float x = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
+            Vector2 v = new Vector2(x + spawnDistance, y);
+            GameObject enemy = Instantiate(normalEnemy, v, Quaternion.identity);
+            entities.Add(enemy);
+        }
     }
 
     private void Update()
