@@ -11,8 +11,9 @@ public class EnemySpawn : MonoBehaviour
     private float distanceTravelled;
     private float min;
     private float max;
-    private float spawnDistance = 10f;
-    private List<GameObject> entities;
+    private float spawnDistance = 30f;
+    public List<GameObject> entities;
+    private bool gravity;
 
     private void Awake()
     {

@@ -285,5 +285,7 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, .5f);
+        
+        Gizmos.DrawLine((Vector2)transform.position, (_directionJoystick) * _dashRange + (Vector2)transform.position);
     }
 }
