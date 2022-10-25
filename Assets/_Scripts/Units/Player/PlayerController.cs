@@ -31,11 +31,16 @@ public class PlayerController : MonoBehaviour
     private Vector3 _stretchScale = new Vector3 { x = 0.5f, y = 0.3f, z = 1.0f };
     private Vector3 _dashScale = Vector3.zero;
 
+    private float _aimAssistAngle = 30;
+    private Vector2 _aimAssistTarget = Vector2.zero;
+
     [Header("Components")]
     [SerializeField] private LineRenderer _lineRenderer;
     [SerializeField] private Rigidbody2D _rb;
     [SerializeField] private BoxCollider2D _boxCollider;
+
     [SerializeField] private LayerMask _floorLayer;
+    [SerializeField] private LayerMask _enemyLayer;
 
     [Header("Joystick")]
     [SerializeField] public Joystick JoystickScript;
@@ -91,10 +96,13 @@ public class PlayerController : MonoBehaviour
         {
             _isAiming = true;
             //StopCoroutine(ReturnToDefaultScale(0.0f));
+            _aimAssistTarget = GetNearestEnemy();
 
             // Calculate dash direction
             CalcDashRange();
             _finalPosition = JoystickScript.Direction * _dashRange + (Vector2)transform.position;
+            var temp = _aimAssistTarget != Vector2.zero ? _aimAssistTarget : _finalPosition;
+            _finalPosition = temp;
             _directionJoystick = JoystickScript.Direction;
 
             // Draw line renderer
@@ -280,12 +288,84 @@ public class PlayerController : MonoBehaviour
     private bool Grounded()
     {
         return Physics2D.OverlapCircle(transform.position, .5f, _floorLayer);
-    } 
+    }
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, .5f);
-        
+        Gizmos.DrawWireSphere(transform.position, _dashRange);
+
+        // add 15 degrees to _directionJoystick
+        Vector2 dir = _directionJoystick;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        angle += _aimAssistAngle;
+        dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+
+        // remove 15 degrees to _directionJoystick
+        Vector2 dir2 = _directionJoystick;
+        float angle2 = Mathf.Atan2(dir2.y, dir2.x) * Mathf.Rad2Deg;
+        angle2 -= _aimAssistAngle;
+        dir2 = new Vector2(Mathf.Cos(angle2 * Mathf.Deg2Rad), Mathf.Sin(angle2 * Mathf.Deg2Rad));
+
         Gizmos.DrawLine((Vector2)transform.position, (_directionJoystick) * _dashRange + (Vector2)transform.position);
+        Gizmos.DrawLine((Vector2)transform.position, (dir) * _dashRange + (Vector2)transform.position);
+        Gizmos.DrawLine((Vector2)transform.position, (dir2) * _dashRange + (Vector2)transform.position);
+    }
+
+    private Vector2 GetNearestEnemy()
+    {
+        // add 15 degrees to _directionJoystick
+        Vector2 dir = _directionJoystick;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        angle += _aimAssistAngle;
+        dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+
+        // remove 15 degrees to _directionJoystick
+        Vector2 dir2 = _directionJoystick;
+        float angle2 = Mathf.Atan2(dir2.y, dir2.x) * Mathf.Rad2Deg;
+        angle2 -= _aimAssistAngle;
+        dir2 = new Vector2(Mathf.Cos(angle2 * Mathf.Deg2Rad), Mathf.Sin(angle2 * Mathf.Deg2Rad));
+
+        // Detect all enemies in a _dashRange radius
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10, _enemyLayer);
+        List<GameObject> inEnemies = new List<GameObject>();
+        
+        foreach (var enemy in enemies)
+        {
+            if (enemy.transform.position != transform.position)
+            {
+                // Check if the enemy is in the 30 degrees angle
+                if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _aimAssistAngle)
+                {
+                    if (Vector2.Distance(transform.position, enemy.transform.position) < 10)
+                    {
+                        inEnemies.Add(enemy.gameObject);
+                    }
+                }
+            }
+        }
+
+        // Get nearest enemy in the inEnemies list to the player
+        GameObject nearestEnemy = null;
+        float nearestDistance = 0;
+        foreach (var enemy in inEnemies)
+        {
+            if (nearestEnemy == null)
+            {
+                nearestEnemy = enemy;
+                nearestDistance = Vector2.Distance(transform.position, enemy.transform.position);
+            }
+            else
+            {
+                if (Vector2.Distance(transform.position, enemy.transform.position) < nearestDistance)
+                {
+                    nearestEnemy = enemy;
+                    nearestDistance = Vector2.Distance(transform.position, enemy.transform.position);
+                }
+            }
+        }
+
+        if (nearestEnemy != null) return nearestEnemy.transform.position;
+        return Vector2.zero;
     }
 }
