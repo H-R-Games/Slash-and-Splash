@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _stretchScale = new Vector3 { x = 0.5f, y = 0.3f, z = 1.0f };
     private Vector3 _dashScale = Vector3.zero;
 
-    private float _aimAssistAngle = 30;
+    private float _aimAssistAngle = 20f;
     private Vector2 _aimAssistTarget = Vector2.zero;
 
     [Header("Components")]
@@ -335,7 +335,7 @@ public class PlayerController : MonoBehaviour
             if (enemy.transform.position != transform.position)
             {
                 // Check if the enemy is in the 30 degrees angle
-                if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _aimAssistAngle)
+                if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _maxDashRange * 1.2)
                 {
                     if (Vector2.Distance(transform.position, enemy.transform.position) < 10)
                     {
