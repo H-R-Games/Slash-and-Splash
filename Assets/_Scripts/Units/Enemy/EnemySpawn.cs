@@ -11,9 +11,13 @@ public class EnemySpawn : MonoBehaviour
     private float distanceTravelled;
     private float min;
     private float max;
-    private float spawnDistance = 30f;
-    public List<GameObject> entities;
-    private bool gravity;
+    private float spawnDistance = 10f;
+    private List<GameObject> entities;
+
+    [Header("Radio of the spawn")]
+    [Range(0, 100)]
+    public float radioGizmo = 10f;
+    public int maxEnemiesStart = 10;
 
     private void Awake()
     {
@@ -26,14 +30,7 @@ public class EnemySpawn : MonoBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < 50; i++)
-        {
-            float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
-            float x = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
-            Vector2 v = new Vector2(x + spawnDistance, y);
-            GameObject enemy = Instantiate(normalEnemy, v, Quaternion.identity);
-            entities.Add(enemy);
-        }
+        StartSpawn(maxEnemiesStart);
     }
 
     private void Update()
@@ -79,5 +76,23 @@ public class EnemySpawn : MonoBehaviour
         float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
         Vector2 v = new Vector2(distance + offset, y);
         entities.Add(Instantiate(normalEnemy, v, Quaternion.identity));
+    }
+
+    private void StartSpawn(int _count)
+    {
+        for (int i = 0; i < _count; i++)
+        {
+            float x = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * radioGizmo + -2f);
+            float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * radioGizmo + -2f);
+            Vector2 v = new Vector2(x, y);
+            GameObject enemy = Instantiate(normalEnemy, v, Quaternion.identity);
+            entities.Add(enemy);
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, radioGizmo);
     }
 }
