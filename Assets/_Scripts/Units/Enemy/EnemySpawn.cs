@@ -11,7 +11,7 @@ public class EnemySpawn : MonoBehaviour
     private float distanceTravelled;
     private float min;
     private float max;
-    private float spawnDistance = 10f;
+    private float spawnDistance = 15f;
     private List<GameObject> entities;
 
     [Header("Radio of the spawn")]
@@ -82,8 +82,9 @@ public class EnemySpawn : MonoBehaviour
     {
         for (int i = 0; i < _count; i++)
         {
-            float x = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * radioGizmo + -2f);
-            float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * radioGizmo + -2f);
+            float x = new Vector3(Random.Range(-radioGizmo, radioGizmo), 0f, 0f).x;
+            float y = new Vector3(0f, Mathf.Abs(Random.Range(-radioGizmo, radioGizmo)), 0f).y;
+
             Vector2 v = new Vector2(x, y);
             GameObject enemy = Instantiate(normalEnemy, v, Quaternion.identity);
             entities.Add(enemy);

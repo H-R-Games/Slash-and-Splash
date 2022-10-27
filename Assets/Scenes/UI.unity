@@ -735,8 +735,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   normalEnemy: {fileID: 9196254375999848222, guid: dd21adb0688d9064581d0ca937f148e8, type: 3}
-  radioGizmo: 35
-  maxEnemiesStart: 15
+  radioGizmo: 20
+  maxEnemiesStart: 25
 --- !u!1 &1727938692
 GameObject:
   m_ObjectHideFlags: 0
