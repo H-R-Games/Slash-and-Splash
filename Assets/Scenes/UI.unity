@@ -846,7 +846,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floorPrefab: {fileID: 3856634131461008470, guid: d039c807493bbaf47a10197e6737ff3b, type: 3}
-  floorWidth: 10
+  floorDeadPrefab: {fileID: 8023621817655668086, guid: f7bd0a5f1e18b4140a4419a821ac5730, type: 3}
+  floorCount: 40
 --- !u!1001 &1163341469288570650
 PrefabInstance:
   m_ObjectHideFlags: 0
