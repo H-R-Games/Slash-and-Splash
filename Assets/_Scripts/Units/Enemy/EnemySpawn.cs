@@ -16,8 +16,8 @@ public class EnemySpawn : MonoBehaviour
 
     [Header("Radio of the spawn")]
     [Range(0, 100)]
-    public float radioGizmo = 10f;
-    public int maxEnemiesStart = 10;
+    public float radioGizmo = 20f;
+    public int maxEnemiesStart = 25;
 
     private void Awake()
     {
