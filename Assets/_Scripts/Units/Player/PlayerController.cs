@@ -104,6 +104,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void FallDeath()
+    {
+        
+    }
+
+    public void KillPlayer()
+    {
+        
+    }
+
     #region Aim Dash
     private void AimDash()
     {
@@ -284,6 +294,9 @@ public class PlayerController : MonoBehaviour
         _boxCollider.size = new Vector2(2, 2);
         _rb.velocity = Vector2.zero;
 
+        Vector2 direction = Vector2.zero;
+        float vel = 0;
+
         for (int i = 0; i < Kills; i++)
         {
             // Detect enemies in a radius of 100 units
@@ -293,6 +306,11 @@ public class PlayerController : MonoBehaviour
             print(i);
             Vector2 curr = this.transform.position;
             Vector2 final = enemies[0].transform.position;
+            
+            // Direction from curr to final
+            direction = (final - curr).normalized;
+            vel = Vector2.Distance(curr, final) / _dashDuration;
+
             float t = 0f;
             while (t < 1)
             {
@@ -303,6 +321,9 @@ public class PlayerController : MonoBehaviour
             }
             //enemiesList.Remove(enemies[i]);
         }
+
+        _rb.velocity = Vector2.zero;
+        _rb.AddForce((vel / 10) * direction, ForceMode2D.Impulse);
 
         _specialSkillActive = false;
         _inSpecialSkill = false;
