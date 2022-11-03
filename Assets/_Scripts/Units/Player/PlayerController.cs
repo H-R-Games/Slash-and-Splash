@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
     public int Kills = 40;
     private bool _specialSkillReady = false;
     private bool _specialSkillActive = false;
+    private bool _inSpecialSkill = false;
 
     [Header("Components")]
     [SerializeField] private LineRenderer _lineRenderer;
@@ -182,7 +183,7 @@ public class PlayerController : MonoBehaviour
             _canDash = false;
             _dashRange = 0;
             StartCoroutine(ICD());
-        } else if (_specialSkillActive) StartCoroutine(DoSuperMegaBlaster());
+        } else if (_specialSkillActive && !_inSpecialSkill) StartCoroutine(DoSuperMegaBlaster());
 
 
     }
@@ -264,8 +265,15 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DoSuperMegaBlaster()
     {
-        _specialSkillActive = false;
-        
+        _specialSkillActive = true;
+        _inSpecialSkill = true;
+
+        // Stop drawing line renderer
+        _lineRenderer.SetPosition(0, transform.position);
+        _lineRenderer.SetPosition(1, transform.position);
+
+        Time.timeScale = 1;
+
         // StartCoroutine(DoSuperMegaBlaster());
         _inDash = true;
         
@@ -291,7 +299,9 @@ public class PlayerController : MonoBehaviour
             }
             //enemiesList.Remove(enemies[i]);
         }
-        
+
+        _specialSkillActive = false;
+        _inSpecialSkill = false;
         _boxCollider.size = new Vector2(1, 1);
         _inDash = false;
     }
