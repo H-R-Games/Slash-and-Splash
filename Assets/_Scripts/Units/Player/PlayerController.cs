@@ -48,6 +48,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LineRenderer _lineRenderer;
     [SerializeField] private Rigidbody2D _rb;
     [SerializeField] private BoxCollider2D _boxCollider;
+    private ScoreSystem _scoreSystem;
 
     [SerializeField] private LayerMask _floorLayer;
     [SerializeField] private LayerMask _enemyLayer;
@@ -67,6 +68,7 @@ public class PlayerController : MonoBehaviour
         _lineRenderer = GetComponent<LineRenderer>();
         _rb = GetComponent<Rigidbody2D>();
         _boxCollider = GetComponent<BoxCollider2D>();
+        _scoreSystem = GetComponent<ScoreSystem>();
 
         JoystickScript = Joystick.Instance;
 
@@ -95,6 +97,8 @@ public class PlayerController : MonoBehaviour
             _canDash = true;
             _killedEnemy = true;
             ResetDases();
+
+            _scoreSystem.OnEnemyKilled();
 
             collision.GetComponent<EnemyController>().Kill();
         }
