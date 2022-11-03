@@ -14,7 +14,7 @@ public class Joystick : Singleton<Joystick>
 
     [Header("Joystick")]
     public AimType TypeAim;
-    [SerializeField] private float _radius = 150;
+    private float _radius = 60;
     private float _recolocateRadius = 3000;
     private int _index = -1;
 

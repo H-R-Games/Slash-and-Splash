@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using static UnityEngine.GraphicsBuffer;
 using UnityEngine;
 using System;
+using System.Reflection;
+using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -33,6 +36,12 @@ public class PlayerController : MonoBehaviour
 
     private float _aimAssistAngle = 20f;
     private Vector2 _aimAssistTarget = Vector2.zero;
+
+    [Header("Special Skill")]
+    public Button SpecialSkillButton;
+    public int Kills = 40;
+    private bool _specialSkillReady = false;
+    private bool _specialSkillActive = false;
 
     [Header("Components")]
     [SerializeField] private LineRenderer _lineRenderer;
@@ -66,6 +75,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         DashesController();
+        MegaBlasterButton();
         _lineRenderer.SetPosition(0, transform.position);
 
     }
@@ -92,8 +102,8 @@ public class PlayerController : MonoBehaviour
     #region Aim Dash
     private void AimDash()
     {
-        if (JoystickScript.Distance != 0 && _canDash == true && _dashes >= 1)
-        {
+        if (JoystickScript.Distance != 0 && _canDash == true && _dashes >= 1 && !_specialSkillActive)
+        {   
             _isAiming = true;
             //StopCoroutine(ReturnToDefaultScale(0.0f));
             _aimAssistTarget = GetNearestEnemy();
@@ -110,6 +120,8 @@ public class PlayerController : MonoBehaviour
             _lineRenderer.SetPosition(1, _finalPosition);
         } else
         {
+            if (_specialSkillActive) print("JIJIJA");
+
             _isAiming = false;
             Time.timeScale = 1; // Reseting time scale
 
@@ -144,6 +156,9 @@ public class PlayerController : MonoBehaviour
         float jsD_to_dashD = Helpers.FromRangeToRange(joystickDistance, min, max, _minDashRange, _maxDashRange);
 
         _dashRange = Mathf.Clamp(jsD_to_dashD, _minDashRange, _maxDashRange);
+
+        Rigidbody2D rigid = GetComponent<Rigidbody2D>();
+
     }
 
     #region Dash
@@ -155,8 +170,9 @@ public class PlayerController : MonoBehaviour
         /* When joystick distance is 0 it means that the player is not aiming
            And if the _dash range is not equal to 0 it means that the player has aimed
            Then shoot and reset dash range to avoid dashing all the time while not aiming
+           And the special skill has not been activated
         */
-        if (JoystickScript.Distance == 0 && _dashRange != 0 && _canDash == true && _inDash == false)
+        if (JoystickScript.Distance == 0 && _dashRange != 0 && _canDash && !_inDash && !_specialSkillActive)
         {
             // Do Dash
             StartCoroutine(DoDash(transform.position, _finalPosition, _dashDuration, _directionJoystick, _dashRange));
@@ -166,7 +182,9 @@ public class PlayerController : MonoBehaviour
             _canDash = false;
             _dashRange = 0;
             StartCoroutine(ICD());
-        }
+        } else if (_specialSkillActive) StartCoroutine(DoSuperMegaBlaster());
+
+
     }
 
     /// <summary>
@@ -182,6 +200,10 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DoDash(Vector2 init, Vector2 final, float time, Vector2 direction, float dashForce)
     {
+        _lineRenderer.SetPosition(0, transform.position);
+        _lineRenderer.SetPosition(1, transform.position);
+        Time.timeScale = 1; // Reseting time scale
+
         _boxCollider.size = new Vector2(2, 2);
         _rb.velocity = Vector2.zero;
         Vector2 curr = this.transform.position;
@@ -228,6 +250,53 @@ public class PlayerController : MonoBehaviour
     {
         _dashes = MaxDashes;
     }
+
+    public void SuperMegaSuperBlaster()
+    {
+        if (_isAiming) _specialSkillActive = true;
+    }
+
+    private void MegaBlasterButton()
+    {
+        if (_isAiming) SpecialSkillButton.interactable = true;
+        else SpecialSkillButton.interactable = false;
+    }
+
+    private IEnumerator DoSuperMegaBlaster()
+    {
+        _specialSkillActive = false;
+        
+        // StartCoroutine(DoSuperMegaBlaster());
+        _inDash = true;
+        
+        _boxCollider.size = new Vector2(2, 2);
+        _rb.velocity = Vector2.zero;
+
+        for (int i = 0; i < Kills; i++)
+        {
+            // Detect enemies in a radius of 100 units
+            Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10, _enemyLayer);
+            if (enemies.Length == 0) break;
+            
+            print(i);
+            Vector2 curr = this.transform.position;
+            Vector2 final = enemies[0].transform.position;
+            float t = 0f;
+            while (t < 1)
+            {
+                t += Time.deltaTime / _dashDuration;
+                //this.transform.position = Vector2.Lerp(curr, final, t);
+                _rb.MovePosition(Vector2.Lerp(curr, final, t));
+                yield return null;
+            }
+            //enemiesList.Remove(enemies[i]);
+        }
+        
+        _boxCollider.size = new Vector2(1, 1);
+        _inDash = false;
+    }
+    
+    
     #endregion
 
     private void RotateCharacter()
@@ -334,8 +403,8 @@ public class PlayerController : MonoBehaviour
         {
             if (enemy.transform.position != transform.position)
             {
-                // Check if the enemy is in the 30 degrees angle
-                if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _maxDashRange * 1.2)
+                // Check if the enemy is in the _aimAssistAngle range degrees angle
+                if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _aimAssistAngle * 1.5)
                 {
                     if (Vector2.Distance(transform.position, enemy.transform.position) < 10)
                     {
