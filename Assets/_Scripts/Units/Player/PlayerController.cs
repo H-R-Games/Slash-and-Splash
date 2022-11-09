@@ -62,6 +62,16 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private bool _inDash = false;
 
+    [Header("Other")]
+    private bool _isActive = true;
+
+    private void Awake()
+    {
+        GetAudioComponents();
+        // On play
+        PlayBackgroundMusic();
+    }
+    
     void Start()
     {
         // Setting components
@@ -77,6 +87,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!_isActive) return;
+            
         DashesController();
         MegaBlasterButton();
         _lineRenderer.SetPosition(0, transform.position);
@@ -85,7 +97,10 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!_isActive) return;
+        
         AimDash();
+        LowPassFilter();
         RotateCharacter();
         DeformCharacter();
     }
@@ -111,7 +126,7 @@ public class PlayerController : MonoBehaviour
 
     public void KillPlayer()
     {
-        
+        _isActive = false;
     }
 
     #region Aim Dash
@@ -190,7 +205,7 @@ public class PlayerController : MonoBehaviour
         if (JoystickScript.Distance == 0 && _dashRange != 0 && _canDash && !_inDash && !_specialSkillActive)
         {
             // Do Dash
-            StartCoroutine(DoDash(transform.position, _finalPosition, _dashDuration, _directionJoystick, _dashRange));
+            if (!_specialSkillActive || !_inSpecialSkill) StartCoroutine(DoDash(transform.position, _finalPosition, _dashDuration, _directionJoystick, _dashRange));
             _dashes--;
 
             // Reseting vars
@@ -214,7 +229,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private IEnumerator DoDash(Vector2 init, Vector2 final, float time, Vector2 direction, float dashForce)
-    {
+    {    
         _lineRenderer.SetPosition(0, transform.position);
         _lineRenderer.SetPosition(1, transform.position);
         Time.timeScale = 1; // Reseting time scale
@@ -251,6 +266,7 @@ public class PlayerController : MonoBehaviour
             _killedEnemy = false;
         }
         _inDash = false;
+        if (_specialSkillActive || _inSpecialSkill) yield break;
         float vel = Vector2.Distance(init, final) / time;
         _rb.AddForce((vel/10) * direction, ForceMode2D.Impulse);
         _boxCollider.size = new Vector2(1, 1);
@@ -394,6 +410,55 @@ public class PlayerController : MonoBehaviour
         return Physics2D.OverlapCircle(transform.position, .5f, _floorLayer);
     }
 
+    #region Audio
+    [Header("Audio")]
+    [SerializeField] private AudioSource _audioSourceSound;
+    [SerializeField] private AudioSource _audioSourceMusic;
+    [SerializeField] private AudioLowPassFilter _lowPassFilter;
+    [SerializeField] private AudioClip _dashSound;
+    [SerializeField] private AudioClip _backgroundMusic;
+
+    private void GetAudioComponents()
+    {
+        // Get components in children
+        _audioSourceSound = transform.GetChild(1).GetComponent<AudioSource>();
+        _audioSourceMusic = transform.GetChild(0).GetComponent<AudioSource>();
+        _lowPassFilter = transform.GetChild(0).GetComponent<AudioLowPassFilter>();
+    }
+
+    
+    private void PlayDashSound()
+    {
+        _audioSourceSound.PlayOneShot(_dashSound);
+    }
+
+    private void PlayBackgroundMusic()
+    {
+        // Loop background music
+        _audioSourceMusic.loop = true;
+        _audioSourceMusic.clip = _backgroundMusic;
+        _audioSourceMusic.Play();
+    }
+
+    private void StopBackgroundMusic()
+    {
+        _audioSourceMusic.Stop();
+    }
+
+    private void LowPassFilter()
+    {
+        if (_isAiming)
+        {
+            _lowPassFilter.cutoffFrequency = 1254;
+        }
+        else
+        {
+            _lowPassFilter.cutoffFrequency = 22000;
+        }
+    }
+
+    #endregion
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, .5f);
@@ -472,4 +537,16 @@ public class PlayerController : MonoBehaviour
         if (nearestEnemy != null) return nearestEnemy.transform.position;
         return Vector2.zero;
     }
+
+    public bool GetIsAiming()
+    {
+        return _isAiming;
+    }
+
+    public float GetJoystickDistance()
+    {
+        return JoystickScript.Distance;
+    }
+
+
 }
