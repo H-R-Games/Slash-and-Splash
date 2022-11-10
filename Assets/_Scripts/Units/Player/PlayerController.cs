@@ -117,6 +117,8 @@ public class PlayerController : MonoBehaviour
 
             collision.GetComponent<EnemyController>().Kill();
         }
+
+        if (collision.gameObject.tag == "DeadZone") KillPlayer();
     }
 
     private void FallDeath()
@@ -127,6 +129,7 @@ public class PlayerController : MonoBehaviour
     public void KillPlayer()
     {
         _isActive = false;
+        //UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
     }
 
     #region Aim Dash
@@ -547,6 +550,4 @@ public class PlayerController : MonoBehaviour
     {
         return JoystickScript.Distance;
     }
-
-
 }

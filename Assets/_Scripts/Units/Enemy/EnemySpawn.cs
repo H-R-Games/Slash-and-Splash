@@ -12,7 +12,7 @@ public class EnemySpawn : MonoBehaviour
     private float min;
     private float max;
     private float spawnDistance = 15f;
-    private List<GameObject> entities;
+    [SerializeField]private List<GameObject> entities;
 
     [Header("Radio of the spawn")]
     [Range(0, 100)]
@@ -95,5 +95,13 @@ public class EnemySpawn : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, radioGizmo);
+    }
+
+    public void DeleteAllEnemy()
+    {
+        for (int i = entities.Count - 1; i >= 0; i--)
+        {
+            Destroy(entities[i]);
+        }
     }
 }
