@@ -9,7 +9,7 @@ public class FloorManeger : MonoBehaviour
     public GameObject floorPrefab;
     public GameObject floorDeadPrefab;
     [Range(0, 100)]
-    public int floorCount = 40;
+    public int floorCount = 120;
     private float _distance = 15;
 
     void Start()
@@ -24,7 +24,7 @@ public class FloorManeger : MonoBehaviour
         for (int i = 0; i < floorCount; i++)
         {
             _distance += Random.Range(20, 30);
-            int _scaleX = Mathf.Abs(Random.Range(10, 15));
+            int _scaleX = Mathf.Abs(Random.Range(5, 10));
             float x = new Vector3(Random.Range(-_distance, _distance), 0f, 0f).x;
             Vector2 v = new Vector2(x, -5);
 
@@ -36,7 +36,7 @@ public class FloorManeger : MonoBehaviour
     private void StartFloor()
     {
         GameObject floor = Instantiate(floorPrefab, new Vector3(0, -5, 0), Quaternion.identity);
-        int _scaleX = Mathf.Abs(Random.Range(10, 15));
+        int _scaleX = Mathf.Abs(Random.Range(5, 10));
         floor.transform.localScale = new Vector3(_scaleX, 1, 1);
     }
 
