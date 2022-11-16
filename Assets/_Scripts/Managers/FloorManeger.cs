@@ -14,6 +14,7 @@ public class FloorManeger : MonoBehaviour
 
     void Start()
     {
+        _floors = new List<GameObject>();
         SpawnFloor();
         DeadZone();
     }
@@ -67,5 +68,7 @@ public class FloorManeger : MonoBehaviour
         {
             Destroy(_floors[i]);
         }
+        
+        _floors = new List<GameObject>();
     }
 }

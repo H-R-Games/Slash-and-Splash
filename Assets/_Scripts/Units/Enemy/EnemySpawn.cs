@@ -12,7 +12,7 @@ public class EnemySpawn : MonoBehaviour
     private float min;
     private float max;
     private float spawnDistance = 15f;
-    [SerializeField]private List<GameObject> entities;
+    [SerializeField]private List<GameObject> _entities;
 
     [Header("Radio of the spawn")]
     [Range(0, 100)]
@@ -21,7 +21,7 @@ public class EnemySpawn : MonoBehaviour
 
     private void Awake()
     {
-        entities = new List<GameObject>();
+        _entities = new List<GameObject>();
         distance = 0f;
         distanceTravelled = 0f;
         min = 0f;
@@ -75,7 +75,7 @@ public class EnemySpawn : MonoBehaviour
         }
         float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
         Vector2 v = new Vector2(distance + offset, y);
-        entities.Add(Instantiate(normalEnemy, v, Quaternion.identity));
+        _entities.Add(Instantiate(normalEnemy, v, Quaternion.identity));
     }
 
     private void StartSpawn(int _count)
@@ -87,7 +87,7 @@ public class EnemySpawn : MonoBehaviour
 
             Vector2 v = new Vector2(x, y);
             GameObject enemy = Instantiate(normalEnemy, v, Quaternion.identity);
-            entities.Add(enemy);
+            _entities.Add(enemy);
         }
     }
 
@@ -99,9 +99,11 @@ public class EnemySpawn : MonoBehaviour
 
     public void DeleteAllEnemy()
     {
-        for (int i = entities.Count - 1; i >= 0; i--)
+        for (int i = _entities.Count - 1; i >= 0; i--)
         {
-            Destroy(entities[i]);
+            Destroy(_entities[i]);
         }
+
+        _entities = new List<GameObject>();
     }
 }
