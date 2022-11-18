@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -16,7 +17,9 @@ public class ScoreSystem : MonoBehaviour
 
     public float ComboDuration = 5;
     private float _clock = 0;
-    
+
+    [SerializeField] private TMP_Text _scoreText;
+
 
     void Start()
     {
@@ -27,7 +30,9 @@ public class ScoreSystem : MonoBehaviour
 
     void Update()
     {
-        
+        _scoreText.text = "Score: " + Score.ToString() +
+            "\nCombo: " + ComboCount.ToString() +
+            "\nMultiplier: " + ComboMultiplier.ToString();
     }
 
     private void FixedUpdate()
@@ -52,6 +57,12 @@ public class ScoreSystem : MonoBehaviour
         }
     }
 
+    public void MissCombo()
+    {  
+        ComboCount = 0;
+        ComboMultiplier = 1;
+    }
+
     private void ComboController()
     {
         if (ComboCount >= _minComboStart)
@@ -62,15 +73,14 @@ public class ScoreSystem : MonoBehaviour
         else
         {
             // Not in combo or combo ended
-            
         }
 
         if (_clock > ComboDuration)
         {
             // Combo ended
+            print("caca");
             _clock = 0;
-            ComboMultiplier = 1;
-            ComboCount = 0;
+            MissCombo();
         }
     }
 }

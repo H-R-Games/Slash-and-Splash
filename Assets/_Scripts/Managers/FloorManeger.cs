@@ -19,6 +19,11 @@ public class FloorManeger : MonoBehaviour
         DeadZone();
     }
 
+    private void OnEnable()
+    {
+        GameObject.FindGameObjectWithTag("Player").gameObject.GetComponent<PlayerController>().OnDeath += DestroyFloor;
+    }
+
     /// <summary>
     /// Creamos una funcion para crear el suelo ene el mapa y lo guardamos en una lista
     /// </summary>

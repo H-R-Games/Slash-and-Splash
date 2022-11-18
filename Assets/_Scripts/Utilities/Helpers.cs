@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A static class for general helpful methods
 /// </summary>
-public static class Helpers 
+public static class Helpers
 {
     /// <summary>
     /// Destroy all child objects of this transform (Unintentionally evil sounding).
@@ -12,7 +12,8 @@ public static class Helpers
     /// transform.DestroyChildren();
     /// </code>
     /// </summary>
-    public static void DestroyChildren(this Transform t) {
+    public static void DestroyChildren(this Transform t)
+    {
         foreach (Transform child in t) Object.Destroy(child.gameObject);
     }
 
@@ -61,11 +62,18 @@ public static class Helpers
     public static float FromRangeToRange(float actualVar, float range1min, float range1max, float range2min, float range2max)
     {
         float result;
-        
+
         float transformation1 = FromRangeToPercentage(actualVar, range1min, range1max);
         float trasformation2 = FromPercentageToRange(transformation1, 0, 100);
         result = FromPercentageToRange(trasformation2, range2min, range2max);
 
+        return result;
+    }
+
+    public static float Buff(float current, float percetage)
+    {
+        float result;
+        result = 1 + (current * (percetage / 100));
         return result;
     }
 }

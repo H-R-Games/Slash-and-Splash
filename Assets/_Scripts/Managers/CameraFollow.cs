@@ -15,11 +15,18 @@ public class CameraFollow : MonoBehaviour
     
     private float _zoomSpeed = 2f;
 
+    [SerializeField] private float _shakeMag;
+    [SerializeField] private float _shakeTime;
+    private bool _isShaking = false;
+
     private PlayerController _p;
 
     void Start()
     {
         _p = Target.GetComponent<PlayerController>();
+
+        _p.OnRevive += ShakeCamera;
+        _p.OnDeath += ShakeCamera;
     }
 
     void Update()
@@ -35,6 +42,7 @@ public class CameraFollow : MonoBehaviour
 
     private void CameraMovement()
     {
+        if (_isShaking) return;
         transform.position = Vector3.Lerp(transform.position, new Vector3(Target.position.x, Target.position.y, transform.position.z), Smoothing);
 
         if (transform.position.y < 0) transform.position = Vector3.Lerp(transform.position, new Vector3(Target.position.x, 0, transform.position.z), Smoothing);
@@ -63,6 +71,36 @@ public class CameraFollow : MonoBehaviour
                 Camera.main.orthographicSize -= _zoomSpeed * Time.deltaTime;
             }
         }
+    }
+
+    // Shake camera for a certain amount of time
+    public void ShakeCamera()
+    {
+        StartCoroutine(Shake(_shakeTime, _shakeMag));
+    }
+
+    private IEnumerator Shake(float duration, float magnitude)
+    {
+        _isShaking = true;
+        
+        Vector3 originalPos = transform.localPosition;
+
+        float elapsed = 0.0f;
+
+        while (elapsed < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            transform.localPosition = new Vector3(originalPos.x + x, originalPos.y + y, originalPos.z);
+
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        transform.localPosition = originalPos;
+        _isShaking = false;
     }
 
 }

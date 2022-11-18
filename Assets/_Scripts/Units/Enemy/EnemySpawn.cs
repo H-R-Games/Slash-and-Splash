@@ -33,6 +33,11 @@ public class EnemySpawn : MonoBehaviour
         StartSpawn(maxEnemiesStart);
     }
 
+    private void OnEnable()
+    {
+        this.gameObject.GetComponent<PlayerController>().OnDeath += DeleteAllEnemy;
+    }
+
     private void Update()
     {
         CheckDistanceSpawn();
