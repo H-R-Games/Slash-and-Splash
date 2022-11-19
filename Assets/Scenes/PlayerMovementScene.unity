@@ -1821,7 +1821,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b95a8877fda4bc40a7dc41a06df4027, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stats: {fileID: 11400000, guid: cb10a61ca191c1e49a0fa9e59fd90d9b, type: 2}
+  _stats: {fileID: 11400000, guid: 56f7c9367cd28bf469825092d71566b5, type: 2}
   _lifes: 2
   _revivePs: {fileID: 5597287747521895532}
   _moveSpeed: 5
@@ -1831,6 +1831,8 @@ MonoBehaviour:
   _canDash: 1
   _dashDuration: 0.1
   _dashICD: 0.5
+  _coyoteDash: 0
+  _coyoteDashTime: 0.1
   MaxDashes: 3
   _dashes: 3
   _finalPosition: {x: 0, y: 0}
