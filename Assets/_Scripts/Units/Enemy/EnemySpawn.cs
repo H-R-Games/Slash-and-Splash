@@ -87,7 +87,6 @@ public class EnemySpawn : MonoBehaviour
             if (Vector2.Distance(transform.position, _entities[i].transform.position) > _distanceToDelete)
             {
                 _entities[i].SetActive(false);
-                _entities.Remove(_entities[i]);
             }
         }
     }
