@@ -19,6 +19,11 @@ public class EnemySpawn : MonoBehaviour
     public float radioGizmo = 20f;
     public int maxEnemiesStart = 25;
 
+    [Header("Pool Settings")]
+    [SerializeField] private int poolSize = 200;
+    private ObjectPooler _objectPooler;
+    [SerializeField] private int _distanceToDelete = 100;
+
     private void Awake()
     {
         _entities = new List<GameObject>();
@@ -30,12 +35,19 @@ public class EnemySpawn : MonoBehaviour
 
     private void Start()
     {
+        _objectPooler = new ObjectPooler();
+        _objectPooler.StorePoolObject(poolSize, normalEnemy);
         StartSpawn(maxEnemiesStart);
     }
 
     private void OnEnable()
     {
         this.gameObject.GetComponent<PlayerController>().OnDeath += DeleteAllEnemy;
+    }
+
+    private void FixedUpdate()
+    {
+        EnemyDeleteDistance();
     }
 
     private void Update()
@@ -68,6 +80,18 @@ public class EnemySpawn : MonoBehaviour
         }
     }
 
+    private void EnemyDeleteDistance()
+    {
+        for (int i = 0; i < _entities.Count; i++)
+        {
+            if (Vector2.Distance(transform.position, _entities[i].transform.position) > _distanceToDelete)
+            {
+                _entities[i].SetActive(false);
+                _entities.Remove(_entities[i]);
+            }
+        }
+    }
+
     private void SpawnEnemy(float offset)
     {
         if (distance > 1130f && distance < 1550f)
@@ -80,7 +104,10 @@ public class EnemySpawn : MonoBehaviour
         }
         float y = Mathf.Floor(Mathf.Abs(Random.Range(0f, 1f) - Random.Range(0f, 1f)) * 203f + -2f);
         Vector2 v = new Vector2(distance + offset, y);
-        _entities.Add(Instantiate(normalEnemy, v, Quaternion.identity));
+        GameObject enemy = _objectPooler.GetPoolerObject(normalEnemy);
+        enemy.transform.position = v;
+        enemy.SetActive(true);
+        _entities.Add(enemy);
     }
 
     private void StartSpawn(int _count)
@@ -91,7 +118,9 @@ public class EnemySpawn : MonoBehaviour
             float y = new Vector3(0f, Mathf.Abs(Random.Range(-radioGizmo, radioGizmo)), 0f).y;
 
             Vector2 v = new Vector2(x, y);
-            GameObject enemy = Instantiate(normalEnemy, v, Quaternion.identity);
+            GameObject enemy = _objectPooler.GetPoolerObject(normalEnemy);
+            enemy.transform.position = v;
+            enemy.SetActive(true);
             _entities.Add(enemy);
         }
     }
@@ -106,9 +135,7 @@ public class EnemySpawn : MonoBehaviour
     {
         for (int i = _entities.Count - 1; i >= 0; i--)
         {
-            Destroy(_entities[i]);
+            _entities[i].SetActive(false);
         }
-
-        _entities = new List<GameObject>();
     }
 }
