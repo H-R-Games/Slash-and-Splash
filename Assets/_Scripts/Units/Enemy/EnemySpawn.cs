@@ -37,11 +37,11 @@ public class EnemySpawn : MonoBehaviour
     {
         _objectPooler = new ObjectPooler();
         _objectPooler.StorePoolObject(poolSize, normalEnemy);
-        StartSpawn(maxEnemiesStart);
     }
 
     private void OnEnable()
     {
+        StartSpawn(maxEnemiesStart);
         this.gameObject.GetComponent<PlayerController>().OnDeath += DeleteAllEnemy;
     }
 
