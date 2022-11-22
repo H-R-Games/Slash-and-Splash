@@ -19,6 +19,5 @@ public class EnemyController : MonoBehaviour
     {
         GameObject gameObjectps = Instantiate(ExplosionPS, this.transform.position, Quaternion.identity);
         Destroy(gameObjectps, 1.5f);
-        this.gameObject.SetActive(false);
     }
 }

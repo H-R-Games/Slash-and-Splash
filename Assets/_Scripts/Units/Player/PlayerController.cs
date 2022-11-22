@@ -89,6 +89,8 @@ public class PlayerController : MonoBehaviour
     public Action OnRevive;
     public Action OnDeath;
 
+    public Action<EnemyController> KillEnemy;
+
     [Header("Other")]
     private bool _isActive = true;
 
@@ -147,6 +149,7 @@ public class PlayerController : MonoBehaviour
             _scoreSystem.OnEnemyKilled();
 
             collision.GetComponent<EnemyController>().Kill();
+            KillEnemy?.Invoke(collision.GetComponent<EnemyController>());
         }
 
         if (collision.gameObject.tag == "DeadZone") KillPlayer();

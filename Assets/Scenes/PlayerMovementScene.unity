@@ -1946,10 +1946,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c3c2f4c2b20bb348b44420d2b8d8975, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  normalEnemy: {fileID: 9196254375999848222, guid: dd21adb0688d9064581d0ca937f148e8, type: 3}
+  NormalEnemy: {fileID: 9196254375999848211, guid: dd21adb0688d9064581d0ca937f148e8, type: 3}
   _entities: []
-  radioGizmo: 40
-  maxEnemiesStart: 40
+  RadioGizmo: 20
+  MaxEnemiesStart: 25
+  _startingPool: 200
+  _maxPool: 500
+  _distanceToDelete: 100
 --- !u!114 &908978752
 MonoBehaviour:
   m_ObjectHideFlags: 0
