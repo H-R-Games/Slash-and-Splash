@@ -25,6 +25,6 @@ MonoBehaviour:
   DashICD: 0.75
   DashSpeed: 0.1
   MaxDashes: 3
-  SlowMotionValue: 0.3
+  SlowMotionValue: 0.5
   SpecialSkillCooldown: 20
   Lifes: 2

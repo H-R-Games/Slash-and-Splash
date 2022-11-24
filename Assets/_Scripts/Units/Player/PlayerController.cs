@@ -70,6 +70,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask _floorLayer;
     [SerializeField] private LayerMask _enemyLayer;
 
+    GameManager _gm;
+
     [Header("Joystick")]
     [SerializeField] public Joystick JoystickScript;
     [SerializeField] private Vector2 _directionJoystick = Vector2.zero;
@@ -112,8 +114,10 @@ public class PlayerController : MonoBehaviour
         _spriteGlowEffect = GetComponent<SpriteGlowEffect>();
 
         JoystickScript = Joystick.Instance;
+        _gm = FindObjectOfType<GameManager>();
 
         PlayerSpawn();
+        _gm.RestartGame += PlayerSpawn;
     }
 
     void Update()
@@ -216,7 +220,7 @@ public class PlayerController : MonoBehaviour
 
             OnDeath?.Invoke();
 
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            //UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         }
         else
         {
@@ -437,7 +441,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < Kills; i++)
         {
             // Detect enemies in a radius of 100 units
-            Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10, _enemyLayer);
+            Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, _maxDashRange * 1.5f, _enemyLayer);
             if (enemies.Length == 0) break;
             
             // print(i);
@@ -701,6 +705,7 @@ public class PlayerController : MonoBehaviour
     #region Setup
     private void PlayerSpawn()
     {
+        _isActive = true;
         SetPlayerStats();
 
         // Positon and scale

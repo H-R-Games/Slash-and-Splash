@@ -26,6 +26,8 @@ public class EnemySpawn : MonoBehaviour
     private ObjectPool<EnemyController> _pool;
     [SerializeField] private int _distanceToDelete = 100;
 
+    private GameManager _gm;
+    
     private void Awake()
     {        
         _entities = new List<EnemyController>();
@@ -37,7 +39,8 @@ public class EnemySpawn : MonoBehaviour
 
     private void Start()
     {
-        
+        _gm = FindObjectOfType<GameManager>();
+        _gm.RestartGame += StartSpawn;
     }
 
     private void OnEnable()
@@ -61,7 +64,7 @@ public class EnemySpawn : MonoBehaviour
             Destroy(enemy.gameObject);
         }, false, _startingPool, _maxPool);
 
-        StartSpawn(_startingPool);
+        StartSpawn();
     }
 
     private void OnDisable()
@@ -142,9 +145,10 @@ public class EnemySpawn : MonoBehaviour
         enemy.transform.position = v;
     }
 
-    private void StartSpawn(int _count)
+    private void StartSpawn()
     {
-        for (int i = 0; i < _count; i++)
+        int count = _startingPool;
+        for (int i = 0; i < count; i++)
         {
             float x = new Vector3(Random.Range(-RadioGizmo, RadioGizmo), 0f, 0f).x;
             float y = new Vector3(0f, Mathf.Abs(Random.Range(-RadioGizmo, RadioGizmo)), 0f).y;
@@ -175,9 +179,8 @@ public class EnemySpawn : MonoBehaviour
     {
         for (int i = _entities.Count - 1; i >= 0; i--)
         {
-            // Return the object to the pool
-            _entities.RemoveAt(i);
             _pool.Release(_entities[i]);
         }
+        _entities.Clear();
     }
 }
