@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DamageNumbersPro;
+using Unity.VisualScripting;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -15,10 +17,13 @@ public class ScoreSystem : MonoBehaviour
     private float _comboMultiplierScaler = 0.2f;
     private int _minComboStart = 4;
 
-    public float ComboDuration = 5;
+    public float ComboDuration = 2;
     private float _clock = 0;
 
     [SerializeField] private TMP_Text _scoreText;
+
+    public DamageNumber NumberPrefab;
+    public RectTransform rectParent;
 
 
     void Start()
@@ -43,7 +48,13 @@ public class ScoreSystem : MonoBehaviour
     public void OnEnemyKilled()
     {
         AddCombo();
-        Score += (KillEnemyScore * ComboMultiplier);
+        var num = (KillEnemyScore * ComboMultiplier);
+        Score += num;
+
+        //Spawn new popup
+        DamageNumber damageNumber = NumberPrefab.Spawn(transform.position, num);
+        //Set the rect parent and anchored position.
+        damageNumber.SetAnchoredPosition(rectParent, new Vector2(0, 0));
     }
 
     private void AddCombo()
