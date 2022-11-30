@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool _canDash = true;
     [SerializeField] private float _dashDuration = 0.1f;
     [SerializeField] private float _dashICD = 0.75f;
+    [SerializeField] private bool _coyoteDash = false;
+    [SerializeField] private float _coyoteDashTime = 0.1f;
 
     private bool _killedEnemy = false;
 
@@ -68,6 +70,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask _floorLayer;
     [SerializeField] private LayerMask _enemyLayer;
 
+    GameManager _gm;
+
     [Header("Joystick")]
     [SerializeField] public Joystick JoystickScript;
     [SerializeField] private Vector2 _directionJoystick = Vector2.zero;
@@ -86,6 +90,8 @@ public class PlayerController : MonoBehaviour
     [Header("Delegate")]
     public Action OnRevive;
     public Action OnDeath;
+
+    public Action<EnemyController> KillEnemy;
 
     [Header("Other")]
     private bool _isActive = true;
@@ -108,8 +114,10 @@ public class PlayerController : MonoBehaviour
         _spriteGlowEffect = GetComponent<SpriteGlowEffect>();
 
         JoystickScript = Joystick.Instance;
+        _gm = FindObjectOfType<GameManager>();
 
         PlayerSpawn();
+        _gm.RestartGame += PlayerSpawn;
     }
 
     void Update()
@@ -136,7 +144,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Enemy" && _inDash)
+        if (collision.gameObject.tag == "Enemy" && (_inDash || _coyoteDash))
         {
             _canDash = true;
             _killedEnemy = true;
@@ -145,6 +153,7 @@ public class PlayerController : MonoBehaviour
             _scoreSystem.OnEnemyKilled();
 
             collision.GetComponent<EnemyController>().Kill();
+            KillEnemy?.Invoke(collision.GetComponent<EnemyController>());
         }
 
         if (collision.gameObject.tag == "DeadZone") KillPlayer();
@@ -211,7 +220,7 @@ public class PlayerController : MonoBehaviour
 
             OnDeath?.Invoke();
 
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            //UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         }
         else
         {
@@ -365,8 +374,10 @@ public class PlayerController : MonoBehaviour
             _killedEnemy = false;
         } else
         {
-            // Miss combo
+            // Enemy not killed
             //this.GetComponent<ScoreSystem>().MissCombo();
+
+            StartCoroutine(CoyoteDashHelp());
         }
         
         print("DASH FINISHED");
@@ -374,6 +385,13 @@ public class PlayerController : MonoBehaviour
         float vel = Vector2.Distance(init, final) / time;
         _rb.AddForce((vel/10) * direction, ForceMode2D.Impulse);
         _boxCollider.size = new Vector2(1, 1);
+    }
+
+    private IEnumerator CoyoteDashHelp()
+    {
+        _coyoteDash = true;
+        yield return new WaitForSeconds(_coyoteDashTime);
+        _coyoteDash = false;
     }
 
     private void DashesController()
@@ -423,7 +441,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < Kills; i++)
         {
             // Detect enemies in a radius of 100 units
-            Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10, _enemyLayer);
+            Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, _maxDashRange * 1.5f, _enemyLayer);
             if (enemies.Length == 0) break;
             
             // print(i);
@@ -476,7 +494,7 @@ public class PlayerController : MonoBehaviour
         dir2 = new Vector2(Mathf.Cos(angle2 * Mathf.Deg2Rad), Mathf.Sin(angle2 * Mathf.Deg2Rad));
 
         // Detect all enemies in a _dashRange radius
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10, _enemyLayer);
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, _maxDashRange, _enemyLayer);
         List<GameObject> inEnemies = new List<GameObject>();
 
         foreach (var enemy in enemies)
@@ -486,7 +504,7 @@ public class PlayerController : MonoBehaviour
                 // Check if the enemy is in the _aimAssistAngle range degrees angle
                 if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _aimAssistAngle * 1.5)
                 {
-                    if (Vector2.Distance(transform.position, enemy.transform.position) < 10)
+                    if (Vector2.Distance(transform.position, enemy.transform.position) < _maxDashRange)
                     {
                         inEnemies.Add(enemy.gameObject);
                     }
@@ -687,6 +705,7 @@ public class PlayerController : MonoBehaviour
     #region Setup
     private void PlayerSpawn()
     {
+        _isActive = true;
         SetPlayerStats();
 
         // Positon and scale

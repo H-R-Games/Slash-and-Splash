@@ -172,7 +172,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &232943408
 Transform:
   m_ObjectHideFlags: 0
@@ -302,7 +302,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &233559855
 Transform:
   m_ObjectHideFlags: 0
@@ -1151,7 +1151,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1356357138
 Transform:
   m_ObjectHideFlags: 0
@@ -1177,6 +1177,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1639055013}
+  - component: {fileID: 1639055014}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -1199,6 +1200,22 @@ Transform:
   m_Father: {fileID: 1289616411}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1639055014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639055012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbefba31147f6ea4f84d4a35dc9b2365, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _balls: {fileID: 7663165902308946868, guid: 5f74e6144778bc944bf9273a296b95c5, type: 3}
+  _ballsInScene: 100
+  _startingPool: 100
+  _maxPool: 200
 --- !u!1 &1661093462
 GameObject:
   m_ObjectHideFlags: 0
@@ -1289,7 +1306,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e073d7bb1e092047aace2b72c1a1121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 150
+  TypeAim: 0
+  canvasText: {fileID: 0}
 --- !u!1001 &1863154146
 PrefabInstance:
   m_ObjectHideFlags: 0

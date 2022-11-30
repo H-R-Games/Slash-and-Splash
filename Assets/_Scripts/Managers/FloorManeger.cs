@@ -12,8 +12,13 @@ public class FloorManeger : MonoBehaviour
     private float _distance = 15;
     [SerializeField]private List<GameObject> _floors;
 
+    private GameManager _gm;
+
     void Start()
     {
+        _gm = FindObjectOfType<GameManager>();
+        _gm.RestartGame += SpawnFloor;
+
         _floors = new List<GameObject>();
         SpawnFloor();
         DeadZone();
