@@ -39,4 +39,6 @@ public class ScriptableStats : ScriptableObject
      * Por cada combo de 30, +1 de vida
      * Autoaim
      */
+
 }
+

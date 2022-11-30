@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - DeadZone
+  - Floor
+  - Event
   layers:
   - Default
   - TransparentFX
