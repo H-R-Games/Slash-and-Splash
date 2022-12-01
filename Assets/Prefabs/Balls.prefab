@@ -136,3 +136,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f6cf384fbeb74844815e925edce602c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _sppedColor: 1
+  _colorsList:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0.95129585, g: 1, b: 0, a: 1}
+  - {r: 0, g: 1, b: 0.88423395, a: 1}
+  - {r: 0, g: 0.07986283, b: 1, a: 1}
+  - {r: 1, g: 0, b: 0.97981787, a: 1}
+  isRandonColor: 1
