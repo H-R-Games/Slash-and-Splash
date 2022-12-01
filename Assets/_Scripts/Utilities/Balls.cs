@@ -1,11 +1,19 @@
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Balls : MonoBehaviour
 {
+    [SerializeField][Range(0, 1f)] private float _sppedColor = 0.5f;
+    [SerializeField] private List<Color> _colorsList;
+    [SerializeField] private bool isRandonColor;
+
     Vector2 _limits;
     Rigidbody2D _rb;
+
+    int _colorIndex = 0;
+    float _time = 0;
 
     private void Awake()
     {
@@ -13,15 +21,17 @@ public class Balls : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
     }
 
+    public void StartBall()
+    {
+        if (isRandonColor) GetComponent<SpriteRenderer>().color = _colorsList[_colorIndex];
+        _rb.velocity = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 5;
+    }
+
     void Update()
     {
         LimitsController();
         MoveBall();
-    }
-
-    public void StartBall()
-    {
-        _rb.velocity = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 5;
+        if (isRandonColor) ColorRandom();
     }
 
     private void LimitsController()
@@ -60,6 +70,20 @@ public class Balls : MonoBehaviour
         if (Input.gyro.enabled)
         {
             _rb.AddForce(new Vector2(Input.gyro.rotationRateUnbiased.y, -Input.gyro.rotationRateUnbiased.x), ForceMode2D.Impulse);
+        }
+    }
+
+    private void ColorRandom()
+    {
+        GetComponent<SpriteRenderer>().color = Color.Lerp(GetComponent<SpriteRenderer>().color, _colorsList[_colorIndex], _sppedColor * Time.deltaTime);
+
+        _time = Mathf.Lerp(_time, 1, _sppedColor * Time.deltaTime);
+
+        if (_time > 0.9f)
+        {
+            _time = 0;
+            _colorIndex++;
+            _colorIndex = (_colorIndex >= _colorsList.Count) ? 0 : _colorIndex;
         }
     }
 }
