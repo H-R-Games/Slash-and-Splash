@@ -9,7 +9,7 @@ public class FloorManeger : MonoBehaviour
     [SerializeField] private GameObject _floorPrefab;
     [SerializeField] private GameObject _floorDeadPrefab;
     [SerializeField][Range(0, 150)] private int _floorCount = 120;
-    private float _distance = 15;
+    private float _distance = 7;
     
     List<GameObject> _floors = new List<GameObject>();
 
@@ -19,6 +19,7 @@ public class FloorManeger : MonoBehaviour
     {
         _gm = FindObjectOfType<GameManager>();
         _gm.RestartGame += SpawnFloor;
+        _gm.Clear += DestroyFloor;
 
         SpawnFloor();
         DeadZone();
@@ -39,7 +40,7 @@ public class FloorManeger : MonoBehaviour
         for (int i = 0; i < _floorCount; i++)
         {
             _distance += Random.Range(20, 30);
-            int _scaleX = Mathf.Abs(Random.Range(5, 10));
+            int _scaleX = Mathf.Abs(Random.Range(8, 15));
             float x = new Vector3(Random.Range(-_distance, _distance), 0f, 0f).x;
             Vector2 v = new Vector2(x, -5);
 

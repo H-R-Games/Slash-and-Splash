@@ -118,6 +118,7 @@ public class PlayerController : MonoBehaviour
 
         PlayerSpawn();
         _gm.RestartGame += PlayerSpawn;
+        _gm.Clear += Clear;
     }
 
     void Update()
@@ -703,9 +704,16 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Setup
+    private void Clear()
+    {
+        _isActive = false;
+        _rb.bodyType = RigidbodyType2D.Static;
+    }
+
     private void PlayerSpawn()
     {
         _isActive = true;
+        _rb.bodyType = RigidbodyType2D.Dynamic;
         SetPlayerStats();
 
         // Positon and scale

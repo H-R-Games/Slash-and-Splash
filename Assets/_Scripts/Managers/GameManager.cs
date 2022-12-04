@@ -9,15 +9,27 @@ public class GameManager : MonoBehaviour
     public GameObject GameOverUI;
 
 
+    [Header("Game Settings")]
+    public bool FirstRun = true;
     private PlayerController _p;
 
     [Header("Delegates")]
     public Action RestartGame;
+    public Action Clear;
+
+    
 
     void Start()
     {
+        FirstRun = true;
         _p = FindObjectOfType<PlayerController>();
         _p.OnDeath += GameOver;
+
+        if (FirstRun)
+        {
+            Clear?.Invoke();
+            FirstRun = false;
+        }
     }
 
     void Update()
@@ -32,7 +44,21 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
-        GameOverUI.SetActive(false);
         RestartGame?.Invoke();
+    }
+
+    public void ClearGame()
+    {
+        Clear?.Invoke();
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1;
     }
 }

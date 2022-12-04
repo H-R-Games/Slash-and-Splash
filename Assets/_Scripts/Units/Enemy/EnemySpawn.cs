@@ -41,6 +41,7 @@ public class EnemySpawn : MonoBehaviour
     {
         _gm = FindObjectOfType<GameManager>();
         _gm.RestartGame += StartSpawn;
+        _gm.Clear += DeleteAllEnemy;
     }
 
     private void OnEnable()

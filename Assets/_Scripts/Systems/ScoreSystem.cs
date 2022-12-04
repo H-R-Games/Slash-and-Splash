@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using DamageNumbersPro;
 using Unity.VisualScripting;
@@ -25,12 +26,20 @@ public class ScoreSystem : MonoBehaviour
     public DamageNumber NumberPrefab;
     public RectTransform rectParent;
 
+    public Text Puntuacion;
+    public Text PuntuacionGO;
+
+    private GameManager _gm;
+
 
     void Start()
     {
         Score = 0;
         ComboCount = 0;
         ComboMultiplier = 1;
+
+        _gm = FindObjectOfType<GameManager>();
+        _gm.RestartGame += ResetScore;
     }
 
     void Update()
@@ -38,6 +47,9 @@ public class ScoreSystem : MonoBehaviour
         _scoreText.text = "Score: " + Score.ToString() +
             "\nCombo: " + ComboCount.ToString() +
             "\nMultiplier: " + ComboMultiplier.ToString();
+
+        Puntuacion.text = Score.ToString();
+        PuntuacionGO.text = Score.ToString();
     }
 
     private void FixedUpdate()
@@ -93,5 +105,12 @@ public class ScoreSystem : MonoBehaviour
             _clock = 0;
             MissCombo();
         }
+    }
+
+    private void ResetScore()
+    {
+        ComboCount = 0;
+        ComboMultiplier = 1;
+        Score = 0;
     }
 }
