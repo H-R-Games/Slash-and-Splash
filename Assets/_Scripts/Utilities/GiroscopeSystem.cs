@@ -41,7 +41,7 @@ public class GiroscopeSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        Camera.main.gameObject.GetComponent<CameraFollow>().enabled = false;
+        //Camera.main.gameObject.GetComponent<CameraFollow>().enabled = false;
         Camera.main.transform.position = new Vector3(0, 0, -10);
         SetGiroscope();
         CreateBalls();
@@ -52,7 +52,7 @@ public class GiroscopeSystem : MonoBehaviour
         Input.gyro.enabled = false;
         DeleteAllEnemy();
         _pool.Clear();
-        Camera.main.gameObject.GetComponent<CameraFollow>().enabled = true;
+        //Camera.main.gameObject.GetComponent<CameraFollow>().enabled = true;
     }
 
     private void SetGiroscope()
@@ -67,11 +67,11 @@ public class GiroscopeSystem : MonoBehaviour
         {
             float randomX = Random.Range(-limitsCameraX, limitsCameraX);
             float randomY = Random.Range(-limitsCameraY, limitsCameraY);
-            
+
             Vector3 randomPosition = new Vector3(randomX, randomY, 0);
-            
+
             Balls balls = _pool.Get();
-            
+
             balls.transform.position = randomPosition;
             balls.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             balls.gameObject.transform.SetParent(this.transform);
@@ -87,5 +87,10 @@ public class GiroscopeSystem : MonoBehaviour
             _pool.Release(_ballsList[i]);
         }
         _ballsList.Clear();
+    }
+
+    public void StartGame()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
     }
 }
