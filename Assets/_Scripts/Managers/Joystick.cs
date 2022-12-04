@@ -25,6 +25,11 @@ public class Joystick : Singleton<Joystick>
 
     public TMP_Text canvasText;
 
+    [Header("SuperBlaster")]
+    public RectTransform SuperBlaster;
+    public System.Action<bool> SuperMegaBlasterAction;
+    public float rad;
+
     void Start()
     {
         // Setting components
@@ -62,6 +67,14 @@ public class Joystick : Singleton<Joystick>
 
                         _index = i;
                         break;
+                    }
+
+                    if (touch.phase == TouchPhase.Began && Vector2.Distance(SuperBlaster.position, touch.position) < rad )
+                    {
+                        if (SuperMegaBlasterAction != null)
+                        {
+                            SuperMegaBlasterAction(true);
+                        }
                     }
                 }
             }

@@ -119,6 +119,9 @@ public class PlayerController : MonoBehaviour
         PlayerSpawn();
         _gm.RestartGame += PlayerSpawn;
         _gm.Clear += Clear;
+
+
+        JoystickScript.SuperMegaBlasterAction += OnDashCall;
     }
 
     void Update()
@@ -535,6 +538,60 @@ public class PlayerController : MonoBehaviour
 
         if (nearestEnemy != null) return nearestEnemy.transform.position;
         return Vector2.zero;
+    }
+
+    private void OnDashCall(bool on)
+    {
+        // add 15 degrees to _directionJoystick
+        Vector2 dir = _directionJoystick;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        angle += _aimAssistAngle;
+        dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+
+        // remove 15 degrees to _directionJoystick
+        Vector2 dir2 = _directionJoystick;
+        float angle2 = Mathf.Atan2(dir2.y, dir2.x) * Mathf.Rad2Deg;
+        angle2 -= _aimAssistAngle;
+        dir2 = new Vector2(Mathf.Cos(angle2 * Mathf.Deg2Rad), Mathf.Sin(angle2 * Mathf.Deg2Rad));
+
+        // Detect all enemies in a _dashRange radius
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, _maxDashRange, _enemyLayer);
+        List<GameObject> inEnemies = new List<GameObject>();
+
+        foreach (var enemy in enemies)
+        {
+            if (enemy.transform.position != transform.position)
+            {
+                // Check if the enemy is in the _aimAssistAngle range degrees angle
+                if (Vector2.Angle(_directionJoystick, enemy.transform.position - transform.position) < _aimAssistAngle * 1.5)
+                {
+                    if (Vector2.Distance(transform.position, enemy.transform.position) < _maxDashRange)
+                    {
+                        inEnemies.Add(enemy.gameObject);
+                    }
+                }
+            }
+        }
+
+        // Get nearest enemy in the inEnemies list to the player
+        GameObject nearestEnemy = null;
+        float nearestDistance = 0;
+        foreach (var enemy in inEnemies)
+        {
+            if (nearestEnemy == null)
+            {
+                nearestEnemy = enemy;
+                nearestDistance = Vector2.Distance(transform.position, enemy.transform.position);
+            }
+            else
+            {
+                if (Vector2.Distance(transform.position, enemy.transform.position) < nearestDistance)
+                {
+                    nearestEnemy = enemy;
+                    nearestDistance = Vector2.Distance(transform.position, enemy.transform.position);
+                }
+            }
+        }
     }
 
     #endregion
